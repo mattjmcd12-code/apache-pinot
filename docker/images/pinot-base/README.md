@@ -26,25 +26,25 @@ This is the base docker image to build [Apache Pinot](https://github.com/apache/
 
 Arguments:
 
-`JAVA_VERSION`: The Java Build and Runtime image version. Default is `11`
+`JAVA_VERSION`: The Java Build and Runtime image version. Default is `17`
 
 `OPENJDK_IMAGE`: Base image to use for Pinot build and runtime, e.g. `arm64v8/openjdk`. Default is `openjdk`.
 
 Usage:
 ```SHELL
-docker build -t apachepinot/pinot-base-build:openjdk11 --no-cache --network=host --build-arg JAVA_VERSION=11 -f pinot-base-build/Dockerfile .
+docker build -t apachepinot/pinot-base-build:openjdk17 --no-cache --network=host --build-arg JAVA_VERSION=17 -f pinot-base-build/Dockerfile .
 ```
 
 ```SHELL
-docker build -t apachepinot/pinot-base-runtime:openjdk11 --no-cache --network=host --build-arg JAVA_VERSION=11 -f pinot-base-runtime/Dockerfile .
+docker build -t apachepinot/pinot-base-runtime:openjdk17 --no-cache --network=host --build-arg JAVA_VERSION=17 -f pinot-base-runtime/Dockerfile .
 ```
 
 Note that if you are not on arm64 machine, you can still build the image by turning on the experimental feature of docker, and add `--platform linux/arm64` into the `docker build ...` script, e.g.
 ```SHELL
-docker build -t apachepinot/pinot-base-build:openjdk11-arm64v8 --platform linux/arm64 --no-cache --network=host --build-arg JAVA_VERSION=11 --build-arg OPENJDK_IMAGE=arm64v8/openjdk -f pinot-base-build/Dockerfile .
+docker build -t apachepinot/pinot-base-build:openjdk17-arm64v8 --platform linux/arm64 --no-cache --network=host --build-arg JAVA_VERSION=17 --build-arg OPENJDK_IMAGE=arm64v8/openjdk -f pinot-base-build/Dockerfile .
 ```
 ```SHELL
-docker build -t apachepinot/pinot-base-runtime:openjdk11-arm64v8 --platform linux/arm64 --no-cache --network=host --build-arg JAVA_VERSION=11 --build-arg OPENJDK_IMAGE=arm64v8/openjdk -f pinot-base-runtime/Dockerfile .
+docker build -t apachepinot/pinot-base-runtime:openjdk17-arm64v8 --platform linux/arm64 --no-cache --network=host --build-arg JAVA_VERSION=17 --build-arg OPENJDK_IMAGE=arm64v8/openjdk -f pinot-base-runtime/Dockerfile .
 ```
 
 ## Publish the docker image
@@ -55,5 +55,5 @@ This task can be triggered manually to build the cross platform(amd64 and arm64v
 
 The build shell is:
 ```SHELL
-docker buildx build --no-cache --platform=linux/arm64,linux/amd64 --file Dockerfile --tag apachepinot/pinot-base-build:openjdk11 --push .
+docker buildx build --no-cache --platform=linux/arm64,linux/amd64 --file Dockerfile --tag apachepinot/pinot-base-build:openjdk17 --push .
 ```

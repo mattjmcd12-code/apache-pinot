@@ -67,8 +67,8 @@ JAVA_VER="$(jdk_version)"
 PASS=0
 for i in $(seq 1 2)
 do
-  if [ "$JAVA_VER" -gt 11 ] ; then
-    mvn clean install -B -DskipTests=true -Pbin-dist -Dmaven.javadoc.skip=true -Djdk.version=11
+  if [ "$JAVA_VER" -gt 17 ] ; then
+    mvn clean install -B -DskipTests=true -Pbin-dist -Dmaven.javadoc.skip=true -Djdk.version=17
   else
     mvn clean install -B -DskipTests=true -Pbin-dist -Dmaven.javadoc.skip=true -Djdk.version=${JAVA_VER}
   fi

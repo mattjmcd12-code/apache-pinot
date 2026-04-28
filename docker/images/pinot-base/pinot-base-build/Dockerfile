@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-ARG JAVA_VERSION=11
+ARG JAVA_VERSION=17
 ARG OPENJDK_IMAGE=openjdk
 FROM ${OPENJDK_IMAGE}:${JAVA_VERSION} AS pinot_build_env
 
