@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.reflections.Reflections;
-import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
@@ -53,7 +53,7 @@ public class PinotReflectionUtils {
     try {
       synchronized (REFLECTION_LOCK) {
         return new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forPackage(packageName))
-            .filterInputsBy(new FilterBuilder.Include(regexPattern))).getTypesAnnotatedWith(annotation);
+            .filterInputsBy(new FilterBuilder().includePattern(regexPattern))).getTypesAnnotatedWith(annotation);
       }
     } catch (Throwable t) {
       // Log an error then re-throw it because this method is usually called in a static block, where exception might
@@ -73,7 +73,7 @@ public class PinotReflectionUtils {
           urls.addAll(ClasspathHelper.forPackage(packageName));
         }
         return new Reflections(new ConfigurationBuilder().setUrls(urls)
-            .filterInputsBy(new FilterBuilder.Include(regexPattern))).getTypesAnnotatedWith(annotation);
+            .filterInputsBy(new FilterBuilder().includePattern(regexPattern))).getTypesAnnotatedWith(annotation);
       }
     } catch (Throwable t) {
       // Log an error then re-throw it because this method is usually called in a static block, where exception might
@@ -93,8 +93,8 @@ public class PinotReflectionUtils {
     try {
       synchronized (REFLECTION_LOCK) {
         return new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forPackage(packageName))
-            .filterInputsBy(new FilterBuilder.Include(regexPattern))
-            .setScanners(new MethodAnnotationsScanner())).getMethodsAnnotatedWith(annotation);
+            .filterInputsBy(new FilterBuilder().includePattern(regexPattern))
+            .setScanners(Scanners.MethodsAnnotated)).getMethodsAnnotatedWith(annotation);
       }
     } catch (Throwable t) {
       // Log an error then re-throw it because this method is usually called in a static block, where exception might

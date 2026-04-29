@@ -18,8 +18,8 @@
  */
 package org.apache.pinot.core.query.pruner;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
+import java.nio.charset.StandardCharsets;
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
 import java.io.File;
@@ -224,7 +224,7 @@ public class ColumnValueSegmentPrunerTest {
   }
 
   private static class BloomFilterReaderBuilder {
-    private BloomFilter<String> _bloomfilter = BloomFilter.create(Funnels.stringFunnel(Charsets.UTF_8), 100, 0.01);
+    private BloomFilter<String> _bloomfilter = BloomFilter.create(Funnels.stringFunnel(StandardCharsets.UTF_8), 100, 0.01);
     public BloomFilterReaderBuilder put(String value) {
       _bloomfilter.put(value);
       return this;

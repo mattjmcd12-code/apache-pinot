@@ -18,8 +18,8 @@
  */
 package org.apache.pinot.segment.local.segment.creator.impl.inv;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
+import java.nio.charset.StandardCharsets;
 import it.unimi.dsi.fastutil.Arrays;
 import it.unimi.dsi.fastutil.Swapper;
 import it.unimi.dsi.fastutil.ints.IntComparator;
@@ -324,7 +324,7 @@ public final class RangeIndexCreator implements CombinedInvertedIndexCreator {
       bytesWritten += Integer.BYTES;
 
       //value data type
-      byte[] valueDataTypeBytes = _valueType.name().getBytes(Charsets.UTF_8);
+      byte[] valueDataTypeBytes = _valueType.name().getBytes(StandardCharsets.UTF_8);
       header.writeInt(valueDataTypeBytes.length);
       bytesWritten += Integer.BYTES;
 
