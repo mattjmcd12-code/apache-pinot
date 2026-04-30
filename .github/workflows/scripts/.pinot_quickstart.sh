@@ -86,7 +86,7 @@ DIST_BIN_DIR=`ls -d build/`
 cd "${DIST_BIN_DIR}"
 
 # Test standalone pinot. Configure JAVA_OPTS for smaller memory, and don't use System.exit
-export JAVA_OPTS="-Xms1G -Dlog4j2.configurationFile=conf/log4j2.xml"
+export JAVA_OPTS="-Xms1G -Dlog4j2.configurationFile=conf/log4j2.xml -XX:+UseG1GC --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/sun.security.ssl=ALL-UNNAMED"
 bin/pinot-admin.sh StartZookeeper &
 ZK_PID=$!
 sleep 10
