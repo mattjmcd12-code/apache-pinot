@@ -24,7 +24,7 @@ FROM ${OPENJDK_IMAGE}:${JAVA_VERSION}-jdk-jammy
 LABEL MAINTAINER=dev@pinot.apache.org
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends vim less wget curl git python sysstat procps linux-perf openjdk-17-dbg && \
+    apt-get install -y --no-install-recommends vim less wget curl git python3 python-is-python3 sysstat procps linux-perf openjdk-17-dbg && \
     rm -rf /var/lib/apt/lists/*
 
 RUN case `uname -m` in \
