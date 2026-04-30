@@ -17,7 +17,7 @@
 # under the License.
 #
 
-FROM eclipse-temurin:17 AS thirdeye_build_env
+FROM eclipse-temurin:11 AS thirdeye_build_env
 
 LABEL MAINTAINER=dev@pinot.apache.org
 
@@ -61,7 +61,7 @@ RUN git clone ${PINOT_GIT_URL} ${TE_BUILD_DIR} \
     && cp ${TE_BUILD_DIR}/thirdeye/thirdeye-pinot/target/thirdeye-pinot-*.jar ${TE_HOME}/bin/thirdeye-pinot.jar \
     && rm -rf ${TE_BUILD_DIR}
 
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:11-jdk
 
 LABEL MAINTAINER=dev@pinot.apache.org
 
