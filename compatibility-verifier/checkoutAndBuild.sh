@@ -73,7 +73,7 @@ function build() {
   local buildTests=$2
   local buildId=$3
   local repoOption=""
-  local versionOption="-Djdk.version=8"
+  local versionOption=""
 
   mkdir -p ${MVN_CACHE_DIR}
 
@@ -198,9 +198,14 @@ echo Starting build for compat checker at ${cmdDir}, buildId none.
 curBuildPid=$!
 
 # The old commit has been cloned in oldTargetDir, build it.
+# Use JDK 11 for old commits if available (old releases may not build with JDK 17)
 buildId=$(date +%s)
 echo Starting build for old version at ${oldTargetDir} buildId ${buildId}
-(cd ${oldTargetDir}; build ${oldBuildOutFile} 0 ${buildId}) &
+if [ -n "${JAVA_11_HOME:-}" ]; then
+  (cd ${oldTargetDir}; export JAVA_HOME="${JAVA_11_HOME}"; export PATH="${JAVA_HOME}/bin:${PATH}"; build ${oldBuildOutFile} 0 ${buildId}) &
+else
+  (cd ${oldTargetDir}; build ${oldBuildOutFile} 0 ${buildId}) &
+fi
 oldBuildPid=$!
 
 # In case the user specified the current tree as newer commit, then

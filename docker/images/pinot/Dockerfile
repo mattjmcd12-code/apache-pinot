@@ -45,7 +45,13 @@ FROM apachepinot/pinot-base-runtime:${PINOT_BASE_IMAGE_TAG}
 LABEL MAINTAINER=dev@pinot.apache.org
 
 ENV PINOT_HOME=/opt/pinot
-ENV JAVA_OPTS="-Xms4G -Xmx4G -Dpinot.admin.system.exit=false"
+ENV JAVA_OPTS="-Xms4G -Xmx4G -Dpinot.admin.system.exit=false \
+  --add-opens=java.base/java.lang=ALL-UNNAMED \
+  --add-opens=java.base/java.lang.reflect=ALL-UNNAMED \
+  --add-opens=java.base/java.io=ALL-UNNAMED \
+  --add-opens=java.base/java.nio=ALL-UNNAMED \
+  --add-opens=java.base/java.util=ALL-UNNAMED \
+  --add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
 
 VOLUME ["${PINOT_HOME}/configs", "${PINOT_HOME}/data"]
 
