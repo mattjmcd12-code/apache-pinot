@@ -333,7 +333,7 @@ setupControllerVariables
 setupBrokerVariables
 setupServerVariables
 
-export JAVA_OPTS="-DControllerPort=${CONTROLLER_PORT} -DBrokerQueryPort=${BROKER_QUERY_PORT} -DServerAdminPort=${SERVER_ADMIN_PORT}"
+export JAVA_OPTS="-DControllerPort=${CONTROLLER_PORT} -DBrokerQueryPort=${BROKER_QUERY_PORT} -DServerAdminPort=${SERVER_ADMIN_PORT} --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
 
 mkdir ${PID_DIR}
 mkdir ${LOG_DIR}

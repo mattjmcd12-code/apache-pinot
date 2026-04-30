@@ -17,7 +17,7 @@
 # under the License.
 #
 
-FROM openjdk:8
+FROM eclipse-temurin:17-jdk
 
 LABEL MAINTAINER=dev@pinot.apache.org
 

@@ -38,10 +38,12 @@ else
 fi
 
 
+ADD_OPENS="--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
+
 function start_server {
   class_ref=$1
   config_dir=$2
-  java -Dlog4j.configurationFile=log4j2.xml -cp "./bin/thirdeye-pinot.jar" ${class_ref} "${config_dir}"
+  java ${ADD_OPENS} -Dlog4j.configurationFile=log4j2.xml -cp "./bin/thirdeye-pinot.jar" ${class_ref} "${config_dir}"
 }
 
 function start_frontend {

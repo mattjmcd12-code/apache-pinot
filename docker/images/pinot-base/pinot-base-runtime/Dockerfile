@@ -17,7 +17,7 @@
 # under the License.
 #
 ARG JAVA_VERSION=17
-ARG OPENJDK_IMAGE=openjdk
+ARG OPENJDK_IMAGE=eclipse-temurin
 
 FROM ${OPENJDK_IMAGE}:${JAVA_VERSION}-jdk-slim
 
