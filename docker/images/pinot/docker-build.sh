@@ -46,7 +46,7 @@ if [[ "$#" -gt 3 ]]
 then
   KAFKA_VERSION=$4
 else
-  KAFKA_VERSION=2.0
+  KAFKA_VERSION=3.3
 fi
 
 if [[ "$#" -gt 4 ]]
