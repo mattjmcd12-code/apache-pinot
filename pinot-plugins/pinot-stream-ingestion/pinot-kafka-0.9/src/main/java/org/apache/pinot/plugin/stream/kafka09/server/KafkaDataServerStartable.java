@@ -19,7 +19,6 @@
 package org.apache.pinot.plugin.stream.kafka09.server;
 
 import java.io.File;
-import java.security.Permission;
 import java.util.Properties;
 import kafka.admin.TopicCommand;
 import kafka.server.KafkaConfig;
@@ -43,28 +42,11 @@ public class KafkaDataServerStartable implements StreamDataServerStartable {
   private int _port;
 
   private static void invokeTopicCommand(String[] args) {
-    // jfim: Use Java security to trap System.exit in Kafka 0.9's TopicCommand
-    System.setSecurityManager(new SecurityManager() {
-      @Override
-      public void checkPermission(Permission perm) {
-        if (perm.getName().startsWith("exitVM")) {
-          throw new SecurityException("System.exit is disabled");
-        }
-      }
-
-      @Override
-      public void checkPermission(Permission perm, Object context) {
-        checkPermission(perm);
-      }
-    });
-
     try {
       TopicCommand.main(args);
-    } catch (SecurityException ex) {
-      // Do nothing, this is caused by our security manager that disables System.exit
+    } catch (Exception ex) {
+      LOGGER.warn("TopicCommand invocation encountered an exception", ex);
     }
-
-    System.setSecurityManager(null);
   }
 
   public void init(Properties props) {

@@ -22,28 +22,22 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.lang.invoke.MethodHandles.constant;
-import static java.lang.invoke.MethodHandles.dropArguments;
-import static java.lang.invoke.MethodHandles.filterReturnValue;
-import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodType.methodType;
 
 
 /**
- * sun.misc.Cleaner has moved in OpenJDK 9 and
- * sun.misc.Unsafe#invokeCleaner(ByteBuffer) is the replacement.
- * This class is a hack to use sun.misc.Cleaner in Java 8 and
- * use the replacement in Java 9+.
- * This implementation is shamelessly borrowed from HADOOP-12760.
+ * Uses sun.misc.Unsafe#invokeCleaner(ByteBuffer) (Java 9+) to unmap
+ * memory-mapped ByteBuffers. The Java 8 fallback path has been removed
+ * since Java 17 is now the minimum required version.
+ * This implementation is borrowed from HADOOP-12760.
  */
+@SuppressWarnings("removal")
 public final class CleanerUtil {
   private static final Logger LOGGER = LoggerFactory.getLogger(CleanerUtil.class);
 
@@ -89,58 +83,15 @@ public final class CleanerUtil {
   private static Object unmapHackImpl() {
     final MethodHandles.Lookup lookup = MethodHandles.lookup();
     try {
-      try {
-        // *** sun.misc.Unsafe unmapping (Java 9+) ***
-        final Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
-        // first check if Unsafe has the right method, otherwise we can
-        // give up without doing any security critical stuff:
-        final MethodHandle unmapper =
-            lookup.findVirtual(unsafeClass, "invokeCleaner", methodType(void.class, ByteBuffer.class));
-        // fetch the unsafe instance and bind it to the virtual MH:
-        final Field f = unsafeClass.getDeclaredField("theUnsafe");
-        f.setAccessible(true);
-        final Object theUnsafe = f.get(null);
-        return newBufferCleaner(ByteBuffer.class, unmapper.bindTo(theUnsafe));
-      } catch (SecurityException se) {
-        // rethrow to report errors correctly (we need to catch it here,
-        // as we also catch RuntimeException below!):
-        throw se;
-      } catch (ReflectiveOperationException | RuntimeException e) {
-        // *** sun.misc.Cleaner unmapping (Java 8) ***
-        final Class<?> directBufferClass = Class.forName("java.nio.DirectByteBuffer");
-
-        final Method m = directBufferClass.getMethod("cleaner");
-        m.setAccessible(true);
-        final MethodHandle directBufferCleanerMethod = lookup.unreflect(m);
-        final Class<?> cleanerClass = directBufferCleanerMethod.type().returnType();
-
-        /*
-         * "Compile" a MethodHandle that basically is equivalent
-         * to the following code:
-         *
-         * void unmapper(ByteBuffer byteBuffer) {
-         *   sun.misc.Cleaner cleaner =
-         *       ((java.nio.DirectByteBuffer) byteBuffer).cleaner();
-         *   if (Objects.nonNull(cleaner)) {
-         *     cleaner.clean();
-         *   } else {
-         *     // the noop is needed because MethodHandles#guardWithTest
-         *     // always needs ELSE
-         *     noop(cleaner);
-         *   }
-         * }
-         */
-        final MethodHandle cleanMethod = lookup.findVirtual(cleanerClass, "clean", methodType(void.class));
-        final MethodHandle nonNullTest =
-            lookup.findStatic(Objects.class, "nonNull", methodType(boolean.class, Object.class))
-                .asType(methodType(boolean.class, cleanerClass));
-        final MethodHandle noop =
-            dropArguments(constant(Void.class, null).asType(methodType(void.class)), 0, cleanerClass);
-        final MethodHandle unmapper =
-            filterReturnValue(directBufferCleanerMethod, guardWithTest(nonNullTest, cleanMethod, noop))
-                .asType(methodType(void.class, ByteBuffer.class));
-        return newBufferCleaner(directBufferClass, unmapper);
-      }
+      // *** sun.misc.Unsafe unmapping (Java 9+) ***
+      final Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
+      final MethodHandle unmapper =
+          lookup.findVirtual(unsafeClass, "invokeCleaner", methodType(void.class, ByteBuffer.class));
+      // fetch the unsafe instance and bind it to the virtual MH:
+      final Field f = unsafeClass.getDeclaredField("theUnsafe");
+      f.setAccessible(true);
+      final Object theUnsafe = f.get(null);
+      return newBufferCleaner(ByteBuffer.class, unmapper.bindTo(theUnsafe));
     } catch (SecurityException se) {
       return "Unmapping is not supported, because not all required " + "permissions are given to the Pinot JAR file: "
           + se + " [Please grant at least the following permissions: "
@@ -153,7 +104,7 @@ public final class CleanerUtil {
   }
 
   private static BufferCleaner newBufferCleaner(final Class<?> unmappableBufferClass, final MethodHandle unmapper) {
-    assert Objects.equals(methodType(void.class, ByteBuffer.class), unmapper.type());
+    assert java.util.Objects.equals(methodType(void.class, ByteBuffer.class), unmapper.type());
     return buffer -> {
       if (!buffer.isDirect()) {
         throw new IllegalArgumentException("unmapping only works with direct buffers");
