@@ -59,15 +59,15 @@ function start_backend {
 
 function start_db {
   echo "Starting H2 database server"
-  java -cp "./bin/thirdeye-pinot.jar" org.h2.tools.Server -tcp -baseDir "${CONFIG_DIR}/.." &
+  java ${ADD_OPENS} -cp "./bin/thirdeye-pinot.jar" org.h2.tools.Server -tcp -baseDir "${CONFIG_DIR}/.." &
   sleep 1
 
   echo "Creating ThirdEye database schema"
-  java -cp "./bin/thirdeye-pinot.jar" org.h2.tools.RunScript -user "sa" -password "sa" -url "jdbc:h2:tcp:localhost/h2db" -script "zip:./bin/thirdeye-pinot.jar!/schema/create-schema.sql"
+  java ${ADD_OPENS} -cp "./bin/thirdeye-pinot.jar" org.h2.tools.RunScript -user "sa" -password "sa" -url "jdbc:h2:tcp:localhost/h2db" -script "zip:./bin/thirdeye-pinot.jar!/schema/create-schema.sql"
 
   if [ -f "${CONFIG_DIR}/bootstrap.sql" ]; then
     echo "Running database bootstrap script ${CONFIG_DIR}/bootstrap.sql"
-    java -cp "./bin/thirdeye-pinot.jar" org.h2.tools.RunScript -user "sa" -password "sa" -url "jdbc:h2:tcp:localhost/h2db" -script "${CONFIG_DIR}/bootstrap.sql"
+    java ${ADD_OPENS} -cp "./bin/thirdeye-pinot.jar" org.h2.tools.RunScript -user "sa" -password "sa" -url "jdbc:h2:tcp:localhost/h2db" -script "${CONFIG_DIR}/bootstrap.sql"
   fi
 }
 
