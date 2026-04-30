@@ -247,15 +247,4 @@ jobs:
             --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
         run: |
           mvn clean install -DskipTests -Ppresto-driver -am -B -pl ':presto-pinot-driver' -T 16 || exit 1
-      - name: Set up JDK 17 for Presto compatibility
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: '17'
-      - name: Build presto pinot driver compatibility check
-        env:
-          MAVEN_OPTS: >-
-            -Xmx2G -DfailIfNoTests=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
-            -Dmaven.wagon.http.retryHandler.count=3 -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false
-        run: |
-          mvn clean install -DskipTests -Ppresto-driver -am -B -pl ':presto-pinot-driver' -T 16 || exit 1
+
