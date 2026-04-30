@@ -19,13 +19,18 @@
 package org.apache.pinot.plugin.stream.kafka09.server;
 
 import java.io.File;
-import java.security.Permission;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
-import kafka.admin.TopicCommand;
+import java.util.UUID;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServerStartable;
 import org.I0Itec.zkclient.ZkClient;
 import org.apache.commons.io.FileUtils;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.pinot.spi.stream.StreamDataServerStartable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,31 +46,7 @@ public class KafkaDataServerStartable implements StreamDataServerStartable {
   private String _zkStr;
   private String _logDirPath;
   private int _port;
-
-  private static void invokeTopicCommand(String[] args) {
-    // jfim: Use Java security to trap System.exit in Kafka 0.9's TopicCommand
-    System.setSecurityManager(new SecurityManager() {
-      @Override
-      public void checkPermission(Permission perm) {
-        if (perm.getName().startsWith("exitVM")) {
-          throw new SecurityException("System.exit is disabled");
-        }
-      }
-
-      @Override
-      public void checkPermission(Permission perm, Object context) {
-        checkPermission(perm);
-      }
-    });
-
-    try {
-      TopicCommand.main(args);
-    } catch (SecurityException ex) {
-      // Do nothing, this is caused by our security manager that disables System.exit
-    }
-
-    System.setSecurityManager(null);
-  }
+  private AdminClient _adminClient;
 
   public void init(Properties props) {
     _zkStr = props.getProperty(ZOOKEEPER_CONNECT);
@@ -89,6 +70,12 @@ public class KafkaDataServerStartable implements StreamDataServerStartable {
 
     _port = config.port();
     _serverStartable = new KafkaServerStartable(config);
+
+    final Map<String, Object> adminConfig = new HashMap<>();
+    adminConfig.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:" + _port);
+    adminConfig.put(AdminClientConfig.CLIENT_ID_CONFIG, "Kafka09AdminClient-" + UUID.randomUUID());
+    adminConfig.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, 15000);
+    _adminClient = AdminClient.create(adminConfig);
   }
 
   @Override
@@ -98,17 +85,22 @@ public class KafkaDataServerStartable implements StreamDataServerStartable {
 
   @Override
   public void stop() {
+    if (_adminClient != null) {
+      _adminClient.close();
+    }
     _serverStartable.shutdown();
     FileUtils.deleteQuietly(new File(_serverStartable.serverConfig().logDirs().apply(0)));
   }
 
   @Override
   public void createTopic(String topic, Properties props) {
-    invokeTopicCommand(
-        new String[]{
-            "--create", "--zookeeper", _zkStr, "--replication-factor", "1", "--partitions", Integer.toString(
-            (Integer) props.get("partition")), "--topic", topic
-        });
+    int partition = (Integer) props.get("partition");
+    NewTopic newTopic = new NewTopic(topic, partition, (short) 1);
+    try {
+      _adminClient.createTopics(Collections.singletonList(newTopic)).all().get();
+    } catch (Exception e) {
+      LOGGER.warn("Failed to create topic: {}", topic, e);
+    }
   }
 
   @Override

@@ -17,8 +17,7 @@
 # under the License.
 #
 ARG JAVA_VERSION=17
-ARG OPENJDK_IMAGE=openjdk
-FROM ${OPENJDK_IMAGE}:${JAVA_VERSION} AS pinot_build_env
+FROM eclipse-temurin:${JAVA_VERSION}-jdk AS pinot_build_env
 
 LABEL MAINTAINER=dev@pinot.apache.org
 

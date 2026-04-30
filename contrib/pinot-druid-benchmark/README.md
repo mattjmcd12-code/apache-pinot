@@ -53,8 +53,7 @@ a bit to be imported into Apache Pinot.
 
 Next, build the Pinot/Druid Benchmark code if you haven't done so already.
 
-**Note:** Apache Pinot has JDK11 support, however for now it's
-best to use JDK8 for all build and run operations in this manual.
+**Note:** Apache Pinot requires JDK 17 or later for all build and run operations.
 
 Inside ```pinot_directory/contrib/pinot-druid-benchmark``` run:
 
